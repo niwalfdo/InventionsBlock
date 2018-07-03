@@ -1,0 +1,49 @@
+<?php
+
+function inventions_news_block_block_info(){
+    $blocks = array();
+    $blocks['inventions_news_block']['info'] = t('Inventions News Block');
+    return $blocks;
+}
+
+function inventions_news_block_block_view($alpha =''){
+    $block = array();
+    switch($alpha){
+        case 'inventions_news_block':
+            $block['subject'] = t('Invention');
+            $block['content'] = inventions_news_block_list();            
+            break;
+    }
+    return $block;
+}
+
+function inventions_news_block_list(){
+
+    global $base_path;
+    
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+        ->entityCondition('bundle', 'article')
+        ->propertyCondition('status', NODE_PUBLISHED)
+        ->propertyOrderBy('created', 'DESC')
+        ->range(0, 5);
+
+    $result = $query->execute();      
+
+    if(isset($result['node'])){        
+        $news_item_nids = array_keys($result['node']);
+        $news_items = entity_load('node', $news_item_nids);
+    }    
+
+    $output = "<ul>\n";
+    foreach($news_items as $news_item){
+        $output .= '<div><h4>'.$news_item->title.'</h4></div><br>';
+        $output .= '<div class="alert alert-success"> Updated On : '.date('r', $news_item->revision_timestamp)."</div><br>";        
+        $output .= mb_substr($news_item->body['und'][0]['value'], 0, 300)."<br>"; 
+        $output .= '<a href="'.$base_path.'node/'.$news_item->nid.'">Read More...</a><br>';
+        $output .= "<br>";            
+    }
+    $output .= "</ul>\n";
+
+    return $output;
+}

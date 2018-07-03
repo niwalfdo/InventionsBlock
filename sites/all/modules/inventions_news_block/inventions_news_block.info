@@ -1,0 +1,5 @@
+name = Inventions News Block
+description = This module output the latest 5 articles
+package = Custom modules
+core = 7.x
+version = 7.x-0.1
